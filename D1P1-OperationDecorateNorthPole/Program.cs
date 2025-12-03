@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿// https://adventofcode.com/2025/day/1
+
+using System.IO;
 using System.Linq;
 
 public static class Program

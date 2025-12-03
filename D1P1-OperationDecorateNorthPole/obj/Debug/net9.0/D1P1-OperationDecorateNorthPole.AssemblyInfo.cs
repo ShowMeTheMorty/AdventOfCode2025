@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("D1P1-OperationDecorateNorthPole")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dda7b0a58a6c36cb300ac8c4d7dd4fac3e131a61")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+00779a03f4e3e596efb6990e2f2b1729326c6330")]
 [assembly: System.Reflection.AssemblyProductAttribute("D1P1-OperationDecorateNorthPole")]
 [assembly: System.Reflection.AssemblyTitleAttribute("D1P1-OperationDecorateNorthPole")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

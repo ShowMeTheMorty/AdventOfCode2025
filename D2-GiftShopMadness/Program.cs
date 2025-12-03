@@ -1,4 +1,6 @@
-﻿public static class Program
+﻿// https://adventofcode.com/2025/day/2
+
+public static class Program
 {
     static string ImportData ()
     {
