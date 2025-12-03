@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "D2-GiftShopMadness/1.0.0": {
+        "runtime": {
+          "D2-GiftShopMadness.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "D2-GiftShopMadness/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

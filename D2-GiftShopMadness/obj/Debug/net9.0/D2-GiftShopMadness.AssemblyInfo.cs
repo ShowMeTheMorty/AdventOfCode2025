@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("D2-GiftShopMadness")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+80992677150c69e5bc92c9850a255e8f92446f04")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dda7b0a58a6c36cb300ac8c4d7dd4fac3e131a61")]
 [assembly: System.Reflection.AssemblyProductAttribute("D2-GiftShopMadness")]
 [assembly: System.Reflection.AssemblyTitleAttribute("D2-GiftShopMadness")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
