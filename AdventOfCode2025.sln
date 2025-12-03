@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D1P1-OperationDecorateNorth
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D2-GiftShopMadness", "D2-GiftShopMadness\D2-GiftShopMadness.csproj", "{D3F6ECB0-05BD-4683-A90B-807904CEF98B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3-PowerLifting", "D3-PowerLifting\D3-PowerLifting.csproj", "{FE5E45AC-85FD-485E-A43E-ADB470BE4867}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{D3F6ECB0-05BD-4683-A90B-807904CEF98B}.Release|x64.Build.0 = Release|Any CPU
 		{D3F6ECB0-05BD-4683-A90B-807904CEF98B}.Release|x86.ActiveCfg = Release|Any CPU
 		{D3F6ECB0-05BD-4683-A90B-807904CEF98B}.Release|x86.Build.0 = Release|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Debug|x64.Build.0 = Debug|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Debug|x86.Build.0 = Debug|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Release|x64.ActiveCfg = Release|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Release|x64.Build.0 = Release|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Release|x86.ActiveCfg = Release|Any CPU
+		{FE5E45AC-85FD-485E-A43E-ADB470BE4867}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "D3-PowerLifting/1.0.0": {
+        "runtime": {
+          "D3-PowerLifting.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "D3-PowerLifting/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
