@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("D3-PowerLifting")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d457945a6014d65609e53dc83700131fff09165e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+55fcac1809f7015ef81f5b8b388008bde6646401")]
 [assembly: System.Reflection.AssemblyProductAttribute("D3-PowerLifting")]
 [assembly: System.Reflection.AssemblyTitleAttribute("D3-PowerLifting")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
