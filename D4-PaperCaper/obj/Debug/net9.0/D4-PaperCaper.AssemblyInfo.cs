@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("D4-PaperCaper")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+55fcac1809f7015ef81f5b8b388008bde6646401")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+10ffbc9fa9f3c22c23ff93514851b0a4c291e6b8")]
 [assembly: System.Reflection.AssemblyProductAttribute("D4-PaperCaper")]
 [assembly: System.Reflection.AssemblyTitleAttribute("D4-PaperCaper")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
