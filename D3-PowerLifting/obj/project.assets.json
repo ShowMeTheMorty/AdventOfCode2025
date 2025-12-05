@@ -8,24 +8,26 @@
     "net9.0": []
   },
   "packageFolders": {
-    "C:\\Users\\george\\.nuget\\packages\\": {}
+    "C:\\Users\\User\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\george\\source\\repos\\AdventOfCode2025\\D3-PowerLifting\\D3-PowerLifting.csproj",
+      "projectUniqueName": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D3-PowerLifting\\D3-PowerLifting.csproj",
       "projectName": "D3-PowerLifting",
-      "projectPath": "C:\\Users\\george\\source\\repos\\AdventOfCode2025\\D3-PowerLifting\\D3-PowerLifting.csproj",
-      "packagesPath": "C:\\Users\\george\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\george\\source\\repos\\AdventOfCode2025\\D3-PowerLifting\\obj\\",
+      "projectPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D3-PowerLifting\\D3-PowerLifting.csproj",
+      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D3-PowerLifting\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\george\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -44,7 +46,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.100"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net9.0": {
@@ -65,7 +67,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.303/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

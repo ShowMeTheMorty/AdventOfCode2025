@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D4-PaperCaper\\D4-PaperCaper.csproj",
-      "projectName": "D4-PaperCaper",
-      "projectPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D4-PaperCaper\\D4-PaperCaper.csproj",
+      "projectUniqueName": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D5-CluelessKitchenhands\\D5-CluelessKitchenhands.csproj",
+      "projectName": "D5-CluelessKitchenhands",
+      "projectPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D5-CluelessKitchenhands\\D5-CluelessKitchenhands.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D4-PaperCaper\\obj\\",
+      "outputPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D5-CluelessKitchenhands\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",

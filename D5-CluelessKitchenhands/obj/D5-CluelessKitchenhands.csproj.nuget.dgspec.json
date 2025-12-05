@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D2-GiftShopMadness\\D2-GiftShopMadness.csproj": {}
+    "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D5-CluelessKitchenhands\\D5-CluelessKitchenhands.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D2-GiftShopMadness\\D2-GiftShopMadness.csproj": {
+    "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D5-CluelessKitchenhands\\D5-CluelessKitchenhands.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D2-GiftShopMadness\\D2-GiftShopMadness.csproj",
-        "projectName": "D2-GiftShopMadness",
-        "projectPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D2-GiftShopMadness\\D2-GiftShopMadness.csproj",
+        "projectUniqueName": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D5-CluelessKitchenhands\\D5-CluelessKitchenhands.csproj",
+        "projectName": "D5-CluelessKitchenhands",
+        "projectPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D5-CluelessKitchenhands\\D5-CluelessKitchenhands.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D2-GiftShopMadness\\obj\\",
+        "outputPath": "C:\\Users\\User\\source\\repos\\AdventOfCode2025\\D5-CluelessKitchenhands\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
