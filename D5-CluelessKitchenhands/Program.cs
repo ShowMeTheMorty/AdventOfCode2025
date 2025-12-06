@@ -33,11 +33,14 @@ public static class Program
     
     public static void PerformPuzzleTwo()
     {
-        
+        Pantry pantry = Pantry.FromFile(@".\input.txt");
+        long freshIngredientIds = pantry.GetAllPossibleFreshIngredientIdCount();
+
+        Console.WriteLine($"There are {freshIngredientIds} fresh ingredient IDs");
     }
 
     public static void Main (string[] args)
     {
-        PerformPuzzleOne();
+        PerformPuzzleTwo();
     }
 }

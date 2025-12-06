@@ -1,20 +1,6 @@
 
 public class Pantry
 {
-    public struct FreshRange (long IdMin, long IdMax)
-    {
-        public bool IsIdInRange(long id)
-        {
-            return id >= IdMin && id <= IdMax;
-        }
-        
-        public static FreshRange FromString (string data)
-        {
-            var numericParts = data.Split('-').Select(long.Parse).ToArray();
-            return new FreshRange(numericParts[0], numericParts[1]);
-        }
-    }
-
     readonly IEnumerable<FreshRange> freshRanges;
     readonly IEnumerable<long> ingredientIds;
 
@@ -36,7 +22,7 @@ public class Pantry
     {
         return new Pantry(File.ReadAllText(path));
     }
-    
+
     public IEnumerable<long> GetFreshIngredientIds()
     {
         return ingredientIds.Where(id =>
@@ -47,5 +33,48 @@ public class Pantry
             }
             return false;
         });
+    }
+    
+    public long GetAllPossibleFreshIngredientIdCount()
+    {
+        long possibleIngredentIdCount = 0;
+        List<FreshRange> rangePool = freshRanges.ToList();
+        List<FreshRange> unionedRanges = [];
+
+        while (rangePool.Count > 0)
+        {
+            FreshRange baseRange = rangePool[0];
+
+            // we will union and accumulate any intersecting ranges and remove them from the pool
+            int i = 1;
+            int unionCount = 0;
+            while (i < rangePool.Count || unionCount > 0)
+            {
+                // start over unitl all possible unions are made
+                if (i >= rangePool.Count) 
+                {
+                    i = 1;
+                    unionCount = 0;
+                }
+
+                if (baseRange.TryUnionWithRange(rangePool[i]))
+                {
+                    unionCount++;
+                    rangePool.RemoveAt(i);
+                }
+                // we can't union YET, so keep scanning pool
+                else i++;
+            }
+
+            unionedRanges.Add(baseRange);
+            rangePool.RemoveAt(0);
+        }
+
+        foreach (FreshRange range in unionedRanges)
+        {
+            possibleIngredentIdCount += range.IdMax - range.IdMin + 1;
+        }
+
+        return possibleIngredentIdCount;
     }
 }
