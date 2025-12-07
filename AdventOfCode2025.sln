@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D5-CluelessKitchenhands", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D6-SquidGame", "D6-SquidGame\D6-SquidGame.csproj", "{84EBC4E6-5381-4B5A-98CF-555EC67FA0D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D7-TachyTech", "D7-TachyTech\D7-TachyTech.csproj", "{DA4D183F-E49D-4651-B1DF-5447E6DCD581}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{84EBC4E6-5381-4B5A-98CF-555EC67FA0D0}.Release|x64.Build.0 = Release|Any CPU
 		{84EBC4E6-5381-4B5A-98CF-555EC67FA0D0}.Release|x86.ActiveCfg = Release|Any CPU
 		{84EBC4E6-5381-4B5A-98CF-555EC67FA0D0}.Release|x86.Build.0 = Release|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Debug|x64.Build.0 = Debug|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Debug|x86.Build.0 = Debug|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Release|x64.ActiveCfg = Release|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Release|x64.Build.0 = Release|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Release|x86.ActiveCfg = Release|Any CPU
+		{DA4D183F-E49D-4651-B1DF-5447E6DCD581}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
