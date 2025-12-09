@@ -1,7 +1,17 @@
 
-using System.Numerics;
-
-public class JunctionBox: ILocatable
+public class JunctionBox
 {
-    public Vector3 Position { get; set; }
+    public KDTree3D.Node Node;
+    public List<JunctionBox> ConnectedBoxes;
+
+    public JunctionBox(KDTree3D.Node node)
+    {
+        Node = node;
+    }
+    
+    public void ConnectJunctionBox(JunctionBox otherJunctionBox)
+    {
+        ConnectedBoxes.Add(otherJunctionBox);
+        otherJunctionBox.ConnectedBoxes.Add(this);
+    }
 }

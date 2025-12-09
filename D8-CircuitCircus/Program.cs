@@ -27,21 +27,9 @@ public static class Program
 984,92,344
 425,690,689";
 
-        Vector3[] data = File.ReadAllText(@".\input.txt")
-            .Split('\n')
-            .Select(str => str.Trim())
-            .Where(str => !string.IsNullOrEmpty(str))
-            .Select(str =>
-            {
-                var parts = str.Split(',');
-                return new Vector3(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
-            })
-            .ToArray();
-
-        Console.WriteLine("And reduce");
-        MinMax3D minMax = MinMax3D.FromParallelReduction(data);
-
-        Console.WriteLine($"min: {minMax.Min}, {minMax.Max}");
+        CircuitLinker linker = new CircuitLinker(testData);
+        int number = linker.LinkNodesAndCountCircuitsAndMultiplyLengths();
+        Console.WriteLine($"number go {number}");
     }
 
     static void PerformPuzzleOne()
