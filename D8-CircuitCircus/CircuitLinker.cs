@@ -6,43 +6,40 @@ public class CircuitLinker
 {
     public class Circuit
     {
-        public enum JoinResult { NotInCircuit, Joined, AlreadyConnected }
+        public enum LinkResult {AlreadyLinked, NoLink, ACanLink, BCanLink};
 
-        public List<JunctionBoxPair> LinkedPairs;
+        public HashSet<Node> Nodes;
 
-        public Circuit (JunctionBoxPair initialPair)
+        public Circuit(Node node)
         {
-            LinkedPairs = [initialPair];
+            Nodes = [node];
         }
 
-        public JoinResult TryJoinToCircuit (JunctionBoxPair incoming)
+        public void MergeCircuit(Circuit circuit)
         {
-            IEnumerable<Vector3> allPoints = LinkedPairs.SelectMany(pair => new Vector3[]{pair.BoxA, pair.BoxB}).ToArray();
-            bool containsA = allPoints.Contains(incoming.BoxA);
-            bool containsB = allPoints.Contains(incoming.BoxB);
-
-            bool containsAtLeastOne = containsA || containsB;
-            bool containsBoth = containsA && containsB;
-
-            if (containsBoth) return JoinResult.AlreadyConnected;
-            if (containsAtLeastOne)
-            {
-                LinkedPairs.Add(incoming);
-                return JoinResult.Joined;
-            }
-            return JoinResult.NotInCircuit;
+            Nodes.Union(circuit.Nodes);
+        }
+        
+        public void MergeNode(Node node)
+        {
+            Nodes.Add(node);
         }
 
-        public int GetCircuitSize ()
+        public LinkResult GetLinkPotential (JunctionBoxPair pair)
         {
-            return LinkedPairs.Count + 1;
+            bool hasA = Nodes.Contains(pair.NodeA);
+            bool hasB = Nodes.Contains(pair.NodeB);
+            if (hasB && hasA) return LinkResult.AlreadyLinked;
+            if (hasA) return LinkResult.ACanLink;
+            if (hasB) return LinkResult.BCanLink;
+            return LinkResult.NoLink;
         }
     }
 
     public class JunctionBoxPair
     {
-        public Vector3 BoxA;
-        public Vector3 BoxB;
+        public Node NodeA;
+        public Node NodeB;
         public float Distance;
 
         public override bool Equals(object? obj)
@@ -52,14 +49,14 @@ public class CircuitLinker
 
             // A–B == B–A
             return
-                (Equals(BoxA, other.BoxA) && Equals(BoxB, other.BoxB)) ||
-                (Equals(BoxA, other.BoxB) && Equals(BoxB, other.BoxA));
+                (Equals(NodeA, other.NodeA) && Equals(NodeA, other.NodeA)) ||
+                (Equals(NodeA, other.NodeA) && Equals(NodeA, other.NodeA));
         }
 
         public override int GetHashCode()
         {
-            int hashA = BoxA.GetHashCode();
-            int hashB = BoxB.GetHashCode();
+            int hashA = NodeA.GetHashCode();
+            int hashB = NodeA.GetHashCode();
 
             return hashA ^ hashB;
         }
@@ -93,6 +90,7 @@ public class CircuitLinker
     bool InsertUniquePairByDistance (List<JunctionBoxPair> pairs, JunctionBoxPair incoming)
     {
         if (pairs.Contains(incoming)) return false;
+        
         for (int i=0; i<pairs.Count; i++)
         {
             JunctionBoxPair test = pairs[i];
@@ -107,19 +105,19 @@ public class CircuitLinker
         return true;
     }
 
-    IEnumerable<JunctionBoxPair> GetClosestPairs ()
+    IEnumerable<JunctionBoxPair> GetClosestPairs (IEnumerable<Node> nodes)
     {
         List<JunctionBoxPair> junctionBoxPairs = [];
         
-        foreach (Node node in Tree.GetAllNodes())
+        foreach (Node node in nodes)
         {
             Node nearest = Tree.FindNearestNeighbour(node)!;
             float distance = Vector3.Distance(node.Point, nearest.Point);
 
             JunctionBoxPair pair = new JunctionBoxPair()
             {
-                BoxA = node.Point,
-                BoxB = nearest.Point,
+                NodeA = node,
+                NodeB = nearest,
                 Distance = distance
             };
 
@@ -131,59 +129,53 @@ public class CircuitLinker
 
     public int LinkNodesAndCountCircuitsAndMultiplyLengths()
     {
+        IEnumerable<Node> nodes = Tree.GetAllNodes();
+        IEnumerable<JunctionBoxPair> junctionBoxPairs = GetClosestPairs(nodes);
         List<Circuit> circuits = [];
-        IEnumerable<JunctionBoxPair> junctionBoxPairs = GetClosestPairs();
 
         int connectionsMade = 0;
         foreach (JunctionBoxPair pair in junctionBoxPairs)
         {
-            if (connectionsMade == TotalPoints) break;
-            
-            List<Circuit> containingCircuits = new List<Circuit>();
+            LinkResult? linkResult1 = null;
+            Circuit? circuitCanLink = null;
+            bool mergedCircuits = false;
 
-            foreach (Circuit circuit in circuits)
+            for (int i = 0; i < circuits.Count; i++)
             {
-                var allPoints = circuit.LinkedPairs.SelectMany(p => new[] { p.BoxA, p.BoxB });
-                if (allPoints.Contains(pair.BoxA) || allPoints.Contains(pair.BoxB))
-                    containingCircuits.Add(circuit);
-            }
-
-            if (containingCircuits.Count == 0)
-            {
-                // neither endpoint in any circuit -> new circuit
-                circuits.Add(new Circuit(pair));
-                connectionsMade++;
-            }
-            else if (containingCircuits.Count == 1)
-            {
-                // only one circuit contains an endpoint -> add to it
-                containingCircuits[0].LinkedPairs.Add(pair);
-                connectionsMade++;
-            }
-            else
-            {
-                // both endpoints in different circuits -> merge them
-                Circuit first = containingCircuits[0];
-                for (int i = 1; i < containingCircuits.Count; i++)
+                if (connectionsMade == TotalPoints / 2) break;
+                Circuit circuit = circuits[i];
+                LinkResult linkResult2 = circuit.GetLinkPotential(pair);
+                if ((linkResult1 == LinkResult.ACanLink && linkResult2 == LinkResult.BCanLink)
+                    || (linkResult1 == LinkResult.BCanLink && linkResult2 == LinkResult.ACanLink))
                 {
-                    first.LinkedPairs.AddRange(containingCircuits[i].LinkedPairs);
-                    circuits.Remove(containingCircuits[i]);
+                    circuitCanLink.MergeCircuit(circuit);
+                    circuits.RemoveAt(i);
+                    connectionsMade++;
+                    mergedCircuits = true;
                 }
-                first.LinkedPairs.Add(pair);
-                connectionsMade++;
+
+                if (linkResult1 == null && (linkResult2 == LinkResult.ACanLink || linkResult2 == LinkResult.BCanLink))
+                {
+                    linkResult1 = linkResult2;
+                    circuitCanLink = circuit;
+                }
             }
+
+            if (!mergedCircuits && circuitCanLink != null)
+            {
+                if (linkResult1 == LinkResult.ACanLink) circuitCanLink.MergeNode(pair.NodeB);
+                if (linkResult1 == LinkResult.BCanLink) circuitCanLink.MergeNode(pair.NodeA);
+                connectionsMade++;
+                continue;
+            }
+
+            Circuit newCircuit = new Circuit(pair.NodeA);
+            newCircuit.MergeNode(pair.NodeB);
+            circuits.Add(newCircuit);
+            connectionsMade++;
         }
 
-        List<int> circuitLengths = circuits
-            .Select(c => c.GetCircuitSize())
-            .ToList();
-
-        int nodesInCircuits = circuits.Sum(c => c.GetCircuitSize());
-        int singletons = TotalPoints - nodesInCircuits;
-
-        for (int i = 0; i < singletons; i++)
-            circuitLengths.Add(1);
-
+        List<int> circuitLengths = circuits.Select(c => c.Nodes.Count).ToList();
         circuitLengths.Sort();
 
         return circuitLengths[^1] * circuitLengths[^2] * circuitLengths[^3];

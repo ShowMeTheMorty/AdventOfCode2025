@@ -2,6 +2,7 @@ using System.Numerics;
 
 public class KDTree3D
 {
+    
     public class Node
     {
         public Vector3 Point;
