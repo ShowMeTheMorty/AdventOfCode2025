@@ -1,46 +1,14 @@
+using System.Drawing;
 using System.Numerics;
-using static CircuitLinker.Circuit;
 using static KDTree3D;
 
 public class CircuitLinker
 {
-    public class Circuit
-    {
-        public enum LinkResult {AlreadyLinked, NoLink, ACanLink, BCanLink};
-
-        public HashSet<Node> Nodes;
-
-        public Circuit(Node node)
-        {
-            Nodes = [node];
-        }
-
-        public void MergeCircuit(Circuit circuit)
-        {
-            Nodes.Union(circuit.Nodes);
-        }
-        
-        public void MergeNode(Node node)
-        {
-            Nodes.Add(node);
-        }
-
-        public LinkResult GetLinkPotential (JunctionBoxPair pair)
-        {
-            bool hasA = Nodes.Contains(pair.NodeA);
-            bool hasB = Nodes.Contains(pair.NodeB);
-            if (hasB && hasA) return LinkResult.AlreadyLinked;
-            if (hasA) return LinkResult.ACanLink;
-            if (hasB) return LinkResult.BCanLink;
-            return LinkResult.NoLink;
-        }
-    }
-
     public class JunctionBoxPair
     {
-        public Node NodeA;
-        public Node NodeB;
-        public float Distance;
+        public Vector3 PointA;
+        public Vector3 PointB;
+        public float DistanceSquared;
 
         public override bool Equals(object? obj)
         {
@@ -49,25 +17,24 @@ public class CircuitLinker
 
             // A–B == B–A
             return
-                (Equals(NodeA, other.NodeA) && Equals(NodeA, other.NodeA)) ||
-                (Equals(NodeA, other.NodeA) && Equals(NodeA, other.NodeA));
+                (Equals(PointA, other.PointA) && Equals(PointB, other.PointB)) ||
+                (Equals(PointA, other.PointB) && Equals(PointB, other.PointA));
         }
 
         public override int GetHashCode()
         {
-            int hashA = NodeA.GetHashCode();
-            int hashB = NodeA.GetHashCode();
+            int hashA = PointA.GetHashCode();
+            int hashB = PointB.GetHashCode();
 
             return hashA ^ hashB;
         }
     }
 
-    readonly KDTree3D Tree;
-    readonly int TotalPoints;
+    readonly Vector3[] Points;
 
     public CircuitLinker(string data)
     {
-        Vector3[] points = data
+        Points = data
             .Split('\n')
             .Select(str => str.Trim())
             .Where(str => !string.IsNullOrEmpty(str))
@@ -77,9 +44,6 @@ public class CircuitLinker
                 return new Vector3(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
             })
             .ToArray();
-
-        TotalPoints = points.Length;
-        Tree = new(points);
     }
 
     public static CircuitLinker FromFile(string path)
@@ -87,95 +51,88 @@ public class CircuitLinker
         return new CircuitLinker(File.ReadAllText(path));
     }
 
-    bool InsertUniquePairByDistance (List<JunctionBoxPair> pairs, JunctionBoxPair incoming)
+    IEnumerable<JunctionBoxPair> GetAllDistancePairsOrdered ()
     {
-        if (pairs.Contains(incoming)) return false;
-        
-        for (int i=0; i<pairs.Count; i++)
+        // naive implementation
+        HashSet<JunctionBoxPair> allPairs = [];
+        foreach (Vector3 point in Points)
         {
-            JunctionBoxPair test = pairs[i];
-            if (incoming.Distance < test.Distance)
+            foreach (Vector3 point2 in Points)
             {
-                pairs.Insert(i, incoming);
-                return true;
+                if (point == point2) continue;
+
+                allPairs.Add(new JunctionBoxPair()
+                {
+                    PointA = point,
+                    PointB = point2,
+                    DistanceSquared = Vector3.Distance(point, point2)
+                });
             }
         }
 
-        pairs.Add(incoming);
-        return true;
+        List<JunctionBoxPair> JBPList = allPairs.ToList();
+        JBPList.Sort((a, b) => a.DistanceSquared.CompareTo(b.DistanceSquared));
+
+        return JBPList;
     }
 
-    IEnumerable<JunctionBoxPair> GetClosestPairs (IEnumerable<Node> nodes)
+    public int GetMagicNumber()
     {
-        List<JunctionBoxPair> junctionBoxPairs = [];
-        
-        foreach (Node node in nodes)
+        IEnumerable<JunctionBoxPair> distancePairsOrdered = GetAllDistancePairsOrdered();
+        List<HashSet<Vector3>> circuits = new List<HashSet<Vector3>>();
+
+        int linked = 0;
+        foreach (JunctionBoxPair pair in distancePairsOrdered)
         {
-            Node nearest = Tree.FindNearestNeighbour(node)!;
-            float distance = Vector3.Distance(node.Point, nearest.Point);
+            if (linked == Points.Length) break;
 
-            JunctionBoxPair pair = new JunctionBoxPair()
+            HashSet<Vector3>? matchedA = null;
+            HashSet<Vector3>? matchedB = null;
+
+            bool alreadyUsed = false;
+            foreach (HashSet<Vector3> circuit in circuits)
             {
-                NodeA = node,
-                NodeB = nearest,
-                Distance = distance
-            };
+                if (matchedA != null && matchedB != null) break;
 
-            InsertUniquePairByDistance(junctionBoxPairs, pair);
-        }
+                bool hasA = circuit.Contains(pair.PointA);
+                bool hasB = circuit.Contains(pair.PointB);
 
-        return junctionBoxPairs;
-    }
-
-    public int LinkNodesAndCountCircuitsAndMultiplyLengths()
-    {
-        IEnumerable<Node> nodes = Tree.GetAllNodes();
-        IEnumerable<JunctionBoxPair> junctionBoxPairs = GetClosestPairs(nodes);
-        List<Circuit> circuits = [];
-
-        int connectionsMade = 0;
-        foreach (JunctionBoxPair pair in junctionBoxPairs)
-        {
-            LinkResult? linkResult1 = null;
-            Circuit? circuitCanLink = null;
-            bool mergedCircuits = false;
-
-            for (int i = 0; i < circuits.Count; i++)
-            {
-                if (connectionsMade == TotalPoints / 2) break;
-                Circuit circuit = circuits[i];
-                LinkResult linkResult2 = circuit.GetLinkPotential(pair);
-                if ((linkResult1 == LinkResult.ACanLink && linkResult2 == LinkResult.BCanLink)
-                    || (linkResult1 == LinkResult.BCanLink && linkResult2 == LinkResult.ACanLink))
+                if (hasA && hasB)
                 {
-                    circuitCanLink.MergeCircuit(circuit);
-                    circuits.RemoveAt(i);
-                    connectionsMade++;
-                    mergedCircuits = true;
+                    alreadyUsed = true;
+                    linked++;
+                    break;
                 }
 
-                if (linkResult1 == null && (linkResult2 == LinkResult.ACanLink || linkResult2 == LinkResult.BCanLink))
-                {
-                    linkResult1 = linkResult2;
-                    circuitCanLink = circuit;
-                }
+                if (hasA) matchedA = circuit;
+                else if (hasB) matchedB = circuit;
             }
 
-            if (!mergedCircuits && circuitCanLink != null)
+            if (!alreadyUsed)
             {
-                if (linkResult1 == LinkResult.ACanLink) circuitCanLink.MergeNode(pair.NodeB);
-                if (linkResult1 == LinkResult.BCanLink) circuitCanLink.MergeNode(pair.NodeA);
-                connectionsMade++;
-                continue;
-            }
+                if (matchedA == null && matchedB == null)
+                {
+                    circuits.Add(new HashSet<Vector3>() { pair.PointA, pair.PointB });
+                }
+                else if (matchedA != null && matchedB != null)
+                {
+                    matchedA.UnionWith(matchedB);
+                    circuits.Remove(matchedB);
+                }
+                else if (matchedA != null)
+                {
+                    matchedA.Add(pair.PointB);
+                }
+                else if (matchedB != null)
+                {
+                    matchedB.Add(pair.PointA);
+                }
 
-            Circuit newCircuit = new Circuit(pair.NodeA);
-            newCircuit.MergeNode(pair.NodeB);
-            circuits.Add(newCircuit);
-            connectionsMade++;
+                linked++;
+            }
         }
 
-        List<int> circuitLengths = circuits.Select(c => c.Nodes.Count).ToList();
+        List<int> circuitLengths = circuits.Select(set => set.Count).ToList();
         circuitLengths.Sort();
 
         return circuitLengths[^1] * circuitLengths[^2] * circuitLengths[^3];

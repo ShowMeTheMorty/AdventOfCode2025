@@ -28,22 +28,27 @@ public static class Program
 425,690,689";
 
         CircuitLinker linker = new CircuitLinker(testData);
-        int number = linker.LinkNodesAndCountCircuitsAndMultiplyLengths();
+        int number = linker.GetMagicNumber();
         Console.WriteLine($"number go {number}");
     }
 
     static void PerformPuzzleOne()
     {
-
+        CircuitLinker linker = CircuitLinker.FromFile(@".\input.txt");
+        int number = linker.GetMagicNumber();
+        Console.WriteLine($"number go {number}");
     }
 
     static void PerformPuzzleTwo()
     {
-
+        CircuitLinker linker = CircuitLinker.FromFile(@".\input.txt");
+        int number = linker.GetMagicNumber();
+        Console.WriteLine($"number go {number}");
     }
     
     public static void Main (string[] args)
     {
         PerformTests();
+        // PerformPuzzleOne();
     }
 }
