@@ -28,7 +28,7 @@ public static class Program
 425,690,689";
 
         CircuitLinker linker = new CircuitLinker(testData);
-        int number = linker.GetMagicNumber();
+        int number = linker.GetMagicNumber(keepGoing: true);
         Console.WriteLine($"number go {number}");
     }
 

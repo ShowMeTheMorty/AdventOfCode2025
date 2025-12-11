@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Formats.Asn1;
 using System.Numerics;
 using static KDTree3D;
 
@@ -53,27 +54,21 @@ public class CircuitLinker
 
     IEnumerable<JunctionBoxPair> GetAllDistancePairsOrdered ()
     {
-        // naive implementation
-        HashSet<JunctionBoxPair> allPairs = [];
-        foreach (Vector3 point in Points)
+        List<JunctionBoxPair> allPairs = new List<JunctionBoxPair>();
+        for (int i = 0; i < Points.Length; i++)
         {
-            foreach (Vector3 point2 in Points)
+            for (int j = i + 1; j < Points.Length; j++)
             {
-                if (point == point2) continue;
-
-                allPairs.Add(new JunctionBoxPair()
-                {
-                    PointA = point,
-                    PointB = point2,
-                    DistanceSquared = Vector3.Distance(point, point2)
+                allPairs.Add(new JunctionBoxPair {
+                    PointA = Points[i],
+                    PointB = Points[j],
+                    DistanceSquared = Vector3.DistanceSquared(Points[i], Points[j])
                 });
             }
         }
+        allPairs.Sort((a,b) => a.DistanceSquared.CompareTo(b.DistanceSquared));
+        return allPairs;
 
-        List<JunctionBoxPair> JBPList = allPairs.ToList();
-        JBPList.Sort((a, b) => a.DistanceSquared.CompareTo(b.DistanceSquared));
-
-        return JBPList;
     }
 
     public int GetMagicNumber(bool keepGoing=false)
@@ -82,7 +77,7 @@ public class CircuitLinker
         List<HashSet<Vector3>> circuits = new List<HashSet<Vector3>>();
 
         int linked = 0;
-        JunctionBoxPair lastConnectedPair = distancePairsOrdered.First();
+        JunctionBoxPair? lastConnectedPair = null;
         foreach (JunctionBoxPair pair in distancePairsOrdered)
         {
             if (!keepGoing && linked == Points.Length) break;
@@ -101,7 +96,6 @@ public class CircuitLinker
                 if (hasA && hasB)
                 {
                     alreadyUsed = true;
-                    linked++;
                     break;
                 }
 
@@ -109,37 +103,41 @@ public class CircuitLinker
                 else if (hasB) matchedB = circuit;
             }
 
-            if (!alreadyUsed)
+            if (alreadyUsed)
             {
-                if (matchedA == null && matchedB == null)
-                {
-                    circuits.Add(new HashSet<Vector3>() { pair.PointA, pair.PointB });
-                }
-                else if (matchedA != null && matchedB != null)
-                {
-                    matchedA.UnionWith(matchedB);
-                    circuits.Remove(matchedB);
-                    lastConnectedPair = pair;
-                }
-                else if (matchedA != null)
-                {
-                    matchedA.Add(pair.PointB);
-                    lastConnectedPair = pair;
-                }
-                else if (matchedB != null)
-                {
-                    matchedB.Add(pair.PointA);
-                    lastConnectedPair = pair;
-                }
-
-                linked++;
+                // do nothing
             }
+            else if (matchedA == null && matchedB == null)
+            {
+                circuits.Add(new HashSet<Vector3>() { pair.PointA, pair.PointB });
+            }
+            else if (matchedA != null && matchedB != null)
+            {
+                matchedA.UnionWith(matchedB);
+                circuits.Remove(matchedB);
+            }
+            else if (matchedA != null)
+            {
+                matchedA.Add(pair.PointB);
+            }
+            else if (matchedB != null)
+            {
+                matchedB.Add(pair.PointA);
+            }
+
+            if (keepGoing && circuits[0].Count == Points.Length)
+            {
+                lastConnectedPair = pair;
+                break;
+            }
+
+            linked++;
         }
 
         List<int> circuitLengths = circuits.Select(set => set.Count).ToList();
         circuitLengths.Sort();
 
-        if (keepGoing) return (int)(lastConnectedPair.PointA.X * lastConnectedPair.PointB.X);
+        if (keepGoing) return (int)(lastConnectedPair!.PointA.X * lastConnectedPair!.PointB.X);
         return circuitLengths[^1] * circuitLengths[^2] * circuitLengths[^3];
     }
 }
