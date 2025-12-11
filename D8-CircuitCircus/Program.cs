@@ -41,7 +41,7 @@ public static class Program
 
     static void PerformPuzzleTwo()
     {
-        CircuitLinker linker = CircuitLinker.FromFile(@".\input.txt");
+        CircuitLinker linker = CircuitLinker.FromFile(@".\input_roger.txt");
         int number = linker.GetMagicNumber(keepGoing: true);
         Console.WriteLine($"number go {number}");
     }

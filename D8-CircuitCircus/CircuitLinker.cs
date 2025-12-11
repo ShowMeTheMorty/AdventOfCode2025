@@ -11,6 +11,11 @@ public class CircuitLinker
         public Vector3 PointB;
         public float DistanceSquared;
 
+        public override string ToString()
+        {
+            return $"{{({PointA.X}, {PointA.Y}, {PointA.Z}) <-> ({PointB.X}, {PointB.Y}, {PointB.Z}): {Math.Sqrt(DistanceSquared)}}}";
+        }
+
         public override bool Equals(object? obj)
         {
             if (obj is not JunctionBoxPair other)
@@ -52,7 +57,7 @@ public class CircuitLinker
         return new CircuitLinker(File.ReadAllText(path));
     }
 
-    IEnumerable<JunctionBoxPair> GetAllDistancePairsOrdered ()
+    JunctionBoxPair[] GetAllDistancePairsOrdered ()
     {
         List<JunctionBoxPair> allPairs = new List<JunctionBoxPair>();
         for (int i = 0; i < Points.Length; i++)
@@ -67,14 +72,18 @@ public class CircuitLinker
             }
         }
         allPairs.Sort((a,b) => a.DistanceSquared.CompareTo(b.DistanceSquared));
-        return allPairs;
+        return allPairs.ToArray();
 
     }
 
     public int GetMagicNumber(bool keepGoing=false)
     {
-        IEnumerable<JunctionBoxPair> distancePairsOrdered = GetAllDistancePairsOrdered();
+        JunctionBoxPair[] distancePairsOrdered = GetAllDistancePairsOrdered();
         List<HashSet<Vector3>> circuits = new List<HashSet<Vector3>>();
+
+        Console.WriteLine(distancePairsOrdered[0]);
+        Console.WriteLine(distancePairsOrdered[1000]);
+        Console.WriteLine(distancePairsOrdered[5000]);
 
         int linked = 0;
         JunctionBoxPair? lastConnectedPair = null;
@@ -133,6 +142,8 @@ public class CircuitLinker
 
             linked++;
         }
+
+        Console.WriteLine(lastConnectedPair);
 
         List<int> circuitLengths = circuits.Select(set => set.Count).ToList();
         circuitLengths.Sort();
