@@ -42,13 +42,14 @@ public static class Program
     static void PerformPuzzleTwo()
     {
         CircuitLinker linker = CircuitLinker.FromFile(@".\input.txt");
-        int number = linker.GetMagicNumber();
+        int number = linker.GetMagicNumber(keepGoing: true);
         Console.WriteLine($"number go {number}");
     }
     
     public static void Main (string[] args)
     {
-        PerformTests();
+        // PerformTests();
         // PerformPuzzleOne();
+        PerformPuzzleTwo();
     }
 }

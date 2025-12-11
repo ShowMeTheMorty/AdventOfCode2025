@@ -76,15 +76,16 @@ public class CircuitLinker
         return JBPList;
     }
 
-    public int GetMagicNumber()
+    public int GetMagicNumber(bool keepGoing=false)
     {
         IEnumerable<JunctionBoxPair> distancePairsOrdered = GetAllDistancePairsOrdered();
         List<HashSet<Vector3>> circuits = new List<HashSet<Vector3>>();
 
         int linked = 0;
+        JunctionBoxPair lastConnectedPair = distancePairsOrdered.First();
         foreach (JunctionBoxPair pair in distancePairsOrdered)
         {
-            if (linked == Points.Length) break;
+            if (!keepGoing && linked == Points.Length) break;
 
             HashSet<Vector3>? matchedA = null;
             HashSet<Vector3>? matchedB = null;
@@ -118,14 +119,17 @@ public class CircuitLinker
                 {
                     matchedA.UnionWith(matchedB);
                     circuits.Remove(matchedB);
+                    lastConnectedPair = pair;
                 }
                 else if (matchedA != null)
                 {
                     matchedA.Add(pair.PointB);
+                    lastConnectedPair = pair;
                 }
                 else if (matchedB != null)
                 {
                     matchedB.Add(pair.PointA);
+                    lastConnectedPair = pair;
                 }
 
                 linked++;
@@ -135,6 +139,7 @@ public class CircuitLinker
         List<int> circuitLengths = circuits.Select(set => set.Count).ToList();
         circuitLengths.Sort();
 
+        if (keepGoing) return (int)(lastConnectedPair.PointA.X * lastConnectedPair.PointB.X);
         return circuitLengths[^1] * circuitLengths[^2] * circuitLengths[^3];
     }
 }
