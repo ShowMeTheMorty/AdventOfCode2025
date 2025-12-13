@@ -24,18 +24,13 @@ public class ConvexHullPolygon
         AAEdges = edges.ToArray();
     }
 
-    int RayTest(long X, long Y, RayDirection direction)
+    int RayTest(long X, long Y, long distance, RayDirection direction)
     {
         int hits = 0;
         foreach (Edge edge in AAEdges)
         {
-            // bool flat = edge.A.Y == edge.B.Y;
-            // if (flat) continue; // ignore aligned edges
+            bool hitsAreEven = hits % 2 == 0;
 
-            // long min = Math.Min(edge.A.Y, edge.B.Y);
-            // long max = Math.Max(edge.A.Y, edge.B.Y);
-            // if (Y >= min && Y <= max && X <= edge.A.X) hits++;
-            
             if (direction == RayDirection.UP)
             {
                 bool flat = edge.A.X == edge.B.X;
@@ -43,7 +38,8 @@ public class ConvexHullPolygon
 
                 long min = Math.Min(edge.A.X, edge.B.X);
                 long max = Math.Max(edge.A.X, edge.B.X);
-                if (X >= min && X <= max && Y <= edge.A.Y) hits++;
+                if (hitsAreEven && X > min && X < max && Y <= edge.A.Y && edge.A.Y - Y < distance) hits++;
+                if (!hitsAreEven && X >= min && X <= max && Y <= edge.A.Y && edge.A.Y - Y < distance) hits++;
             }
             if (direction == RayDirection.DOWN)
             {
@@ -52,7 +48,8 @@ public class ConvexHullPolygon
 
                 long min = Math.Min(edge.A.X, edge.B.X);
                 long max = Math.Max(edge.A.X, edge.B.X);
-                if (X >= min && X <= max && Y >= edge.A.Y) hits++;
+                if (hitsAreEven && X > min && X < max && Y >= edge.A.Y && Y - edge.A.Y < distance) hits++;
+                if (!hitsAreEven && X >= min && X <= max && Y >= edge.A.Y && Y - edge.A.Y < distance) hits++;
             }
             if (direction == RayDirection.RIGHT)
             {
@@ -61,7 +58,8 @@ public class ConvexHullPolygon
 
                 long min = Math.Min(edge.A.Y, edge.B.Y);
                 long max = Math.Max(edge.A.Y, edge.B.Y);
-                if (Y >= min && Y <= max && X <= edge.A.X) hits++;
+                if (hitsAreEven && Y > min && Y < max && X <= edge.A.X && edge.A.X - X < distance) hits++;
+                if (!hitsAreEven && Y >= min && Y <= max && X <= edge.A.X && edge.A.X - X < distance) hits++;
             }
             if (direction == RayDirection.LEFT)
             {
@@ -70,26 +68,35 @@ public class ConvexHullPolygon
 
                 long min = Math.Min(edge.A.Y, edge.B.Y);
                 long max = Math.Max(edge.A.Y, edge.B.Y);
-                if (Y >= min && Y <= max && X >= edge.A.X) hits++;
+                if (hitsAreEven && Y > min && Y < max && X >= edge.A.X && X - edge.A.X < distance) hits++;
+                if (!hitsAreEven && Y >= min && Y <= max && X >= edge.A.X && X - edge.A.X < distance) hits++;
             }
         }
         return hits;
     }
 
-    bool IsVertexInside(Vertex vertex, RayDirection direction)
+    bool IsVertexInside(Vertex vertexFrom, Vertex vertexTo)
     {
-        int hits = RayTest(vertex.X, vertex.Y, direction);
+        bool flat = vertexFrom.Y == vertexTo.Y;
+        bool dirIsPositive = flat ? vertexFrom.X <= vertexTo.X : vertexFrom.Y <= vertexTo.Y;
+        RayDirection direction = flat ? (
+            dirIsPositive ? RayDirection.RIGHT : RayDirection.LEFT
+        ) : (
+            dirIsPositive ? RayDirection.UP : RayDirection.DOWN
+        );
+        long distance = flat ? Math.Abs(vertexFrom.X - vertexTo.X) : Math.Abs(vertexFrom.Y - vertexTo.Y);
+
+        int hits = RayTest(vertexFrom.X, vertexFrom.Y, distance, direction);
         if (hits != 1) return false;
         return true;
     }
 
     public bool CanContainAABB(AABB rectangle)
     {
-        bool upNotRight = false;
-        for (int i=0; i<4; i++)
+        for (int i=0, j=1; i<4; i++, j++)
         {
-            upNotRight = !upNotRight;
-            if (!IsVertexInside(rectangle.Vertices[i], RayDirection.RIGHT)) return false;
+            if (j == 4) j = 0;
+            if (!IsVertexInside(rectangle.Vertices[i], rectangle.Vertices[j])) return false;
         }
 
         return true;
