@@ -7,8 +7,8 @@ public class CircuitLinker
 {
     public class JunctionBoxPair
     {
-        public Vector3 PointA;
-        public Vector3 PointB;
+        public Vec3 PointA;
+        public Vec3 PointB;
         public float DistanceSquared;
 
         public override string ToString()
@@ -36,7 +36,7 @@ public class CircuitLinker
         }
     }
 
-    readonly Vector3[] Points;
+    readonly Vec3[] Points;
 
     public CircuitLinker(string data)
     {
@@ -47,7 +47,7 @@ public class CircuitLinker
             .Select(str =>
             {
                 var parts = str.Split(',');
-                return new Vector3(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
+                return new Vec3(long.Parse(parts[0]), long.Parse(parts[1]), long.Parse(parts[2]));
             })
             .ToArray();
     }
@@ -67,7 +67,7 @@ public class CircuitLinker
                 allPairs.Add(new JunctionBoxPair {
                     PointA = Points[i],
                     PointB = Points[j],
-                    DistanceSquared = Vector3.DistanceSquared(Points[i], Points[j])
+                    DistanceSquared = Vec3.DistanceSquared(Points[i], Points[j])
                 });
             }
         }
@@ -79,7 +79,7 @@ public class CircuitLinker
     public int GetMagicNumber(bool keepGoing=false)
     {
         JunctionBoxPair[] distancePairsOrdered = GetAllDistancePairsOrdered();
-        List<HashSet<Vector3>> circuits = new List<HashSet<Vector3>>();
+        List<HashSet<Vec3>> circuits = new List<HashSet<Vec3>>();
 
         Console.WriteLine(distancePairsOrdered[0]);
         Console.WriteLine(distancePairsOrdered[1000]);
@@ -91,11 +91,11 @@ public class CircuitLinker
         {
             if (!keepGoing && linked == Points.Length) break;
 
-            HashSet<Vector3>? matchedA = null;
-            HashSet<Vector3>? matchedB = null;
+            HashSet<Vec3>? matchedA = null;
+            HashSet<Vec3>? matchedB = null;
 
             bool alreadyUsed = false;
-            foreach (HashSet<Vector3> circuit in circuits)
+            foreach (HashSet<Vec3> circuit in circuits)
             {
                 if (matchedA != null && matchedB != null) break;
 
@@ -118,7 +118,7 @@ public class CircuitLinker
             }
             else if (matchedA == null && matchedB == null)
             {
-                circuits.Add(new HashSet<Vector3>() { pair.PointA, pair.PointB });
+                circuits.Add(new HashSet<Vec3>() { pair.PointA, pair.PointB });
             }
             else if (matchedA != null && matchedB != null)
             {
