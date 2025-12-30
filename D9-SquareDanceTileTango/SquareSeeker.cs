@@ -49,7 +49,7 @@ public class SquareSeeker
         if (anySquarea) return squares[^1].Size;
 
         // test polygon
-        ConvexHullPolygon polygon = new(Coords);
+        Polygon polygon = new(Coords);
 
         for (int i = squares.Length - 1; i >= 0; i--)
         {

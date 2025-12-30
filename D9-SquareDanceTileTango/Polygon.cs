@@ -1,16 +1,36 @@
 using System.Collections;
 using System.Security.Cryptography.X509Certificates;
 
-public class ConvexHullPolygon
+public class Polygon
 {
+    public interface RayHit
+    {
+        Edge HitEdge { get; set; }
+        long Distance { get; set; }
+    }
+
+    public struct AlignedRayHit : RayHit
+    {
+        public Edge HitEdge { get; set; }
+        public long Distance { get; set; }
+    }
+
+    public struct BroadsideRayHit : RayHit
+    {
+        public Edge HitEdge { get; set; }
+        public long Distance { get; set; }
+    }
+
+
     public enum RayDirection
     {
         RIGHT, DOWN, UP, LEFT
     };
+
     
     readonly Edge[] AAEdges;
 
-    public ConvexHullPolygon(Vertex[] vertices)
+    public Polygon(Vertex[] vertices)
     {
         List<Edge> edges = [];
 
@@ -24,58 +44,60 @@ public class ConvexHullPolygon
         AAEdges = edges.ToArray();
     }
 
-    int RayTest(long X, long Y, long distance, RayDirection direction)
+    IEnumerable<RayHit> RayTest(long X, long Y, long distanceMax, RayDirection direction)
     {
-        int hits = 0;
         foreach (Edge edge in AAEdges)
         {
-            bool hitsAreEven = hits % 2 == 0;
+            bool flatRay = direction == RayDirection.RIGHT || direction == RayDirection.LEFT;
+            bool positiveRayDir = direction == RayDirection.UP || direction == RayDirection.RIGHT;
+            bool flatEdge = edge.A.Y == edge.B.Y;
+            bool aligned = (flatRay && flatEdge) || (!flatRay && !flatEdge);
 
-            if (direction == RayDirection.UP)
+            long edgeMin = flatEdge ? Math.Min(edge.A.X, edge.B.X) : Math.Min(edge.A.Y, edge.B.Y);
+            long edgeMax = flatEdge ? Math.Max(edge.A.X, edge.B.X) : Math.Max(edge.A.Y, edge.B.Y);
+            
+            long perpEdgePosition = flatEdge ? edge.A.Y : edge.A.X;
+            long perpRayPosition = flatRay ? Y : X;
+            long rayStartPosition = flatRay ? X : Y;
+
+            bool inline = aligned && perpEdgePosition == perpRayPosition;
+
+            if (aligned)
             {
-                bool flat = edge.A.X == edge.B.X;
-                if (flat) continue; // ignore aligned edges
+                if (!inline) continue; // miss
 
-                long min = Math.Min(edge.A.X, edge.B.X);
-                long max = Math.Max(edge.A.X, edge.B.X);
-                if (hitsAreEven && X > min && X < max && Y <= edge.A.Y && edge.A.Y - Y < distance) hits++;
-                if (!hitsAreEven && X >= min && X <= max && Y <= edge.A.Y && edge.A.Y - Y < distance) hits++;
+                long distance = positiveRayDir ?
+                    edgeMin - rayStartPosition : rayStartPosition - edgeMax;
+
+                if (distance <= 0 || distance >= distanceMax) continue;
+
+                yield return new AlignedRayHit
+                {
+                    Distance = distance,
+                    HitEdge = edge
+                };
             }
-            if (direction == RayDirection.DOWN)
+            else
             {
-                bool flat = edge.A.X == edge.B.X;
-                if (flat) continue; // ignore aligned edges
+                long distance = positiveRayDir ?
+                    perpEdgePosition - rayStartPosition : rayStartPosition - perpEdgePosition;
 
-                long min = Math.Min(edge.A.X, edge.B.X);
-                long max = Math.Max(edge.A.X, edge.B.X);
-                if (hitsAreEven && X > min && X < max && Y >= edge.A.Y && Y - edge.A.Y < distance) hits++;
-                if (!hitsAreEven && X >= min && X <= max && Y >= edge.A.Y && Y - edge.A.Y < distance) hits++;
-            }
-            if (direction == RayDirection.RIGHT)
-            {
-                bool flat = edge.A.Y == edge.B.Y;
-                if (flat) continue; // ignore aligned edges
+                if (distance <= 0 || distance >= distanceMax) continue;
 
-                long min = Math.Min(edge.A.Y, edge.B.Y);
-                long max = Math.Max(edge.A.Y, edge.B.Y);
-                if (hitsAreEven && Y > min && Y < max && X <= edge.A.X && edge.A.X - X < distance) hits++;
-                if (!hitsAreEven && Y >= min && Y <= max && X <= edge.A.X && edge.A.X - X < distance) hits++;
-            }
-            if (direction == RayDirection.LEFT)
-            {
-                bool flat = edge.A.Y == edge.B.Y;
-                if (flat) continue; // ignore aligned edges
+                bool rayOnTarget = perpRayPosition >= edgeMin && perpRayPosition <= edgeMax;
 
-                long min = Math.Min(edge.A.Y, edge.B.Y);
-                long max = Math.Max(edge.A.Y, edge.B.Y);
-                if (hitsAreEven && Y > min && Y < max && X >= edge.A.X && X - edge.A.X < distance) hits++;
-                if (!hitsAreEven && Y >= min && Y <= max && X >= edge.A.X && X - edge.A.X < distance) hits++;
+                if (!rayOnTarget) continue;
+                
+                yield return new BroadsideRayHit
+                {
+                    Distance = distance,
+                    HitEdge = edge
+                };
             }
         }
-        return hits;
     }
 
-    bool IsVertexInside(Vertex vertexFrom, Vertex vertexTo)
+    bool IsEdgeWithinBounds(Vertex vertexFrom, Vertex vertexTo)
     {
         bool flat = vertexFrom.Y == vertexTo.Y;
         bool dirIsPositive = flat ? vertexFrom.X <= vertexTo.X : vertexFrom.Y <= vertexTo.Y;
@@ -86,9 +108,35 @@ public class ConvexHullPolygon
         );
         long distance = flat ? Math.Abs(vertexFrom.X - vertexTo.X) : Math.Abs(vertexFrom.Y - vertexTo.Y);
 
-        int hits = RayTest(vertexFrom.X, vertexFrom.Y, distance, direction);
-        if (hits != 1) return false;
-        return true;
+        IEnumerable<RayHit> hits = RayTest(vertexFrom.X, vertexFrom.Y, distance, direction);
+
+        List<BroadsideRayHit> broadsideRayHits = hits
+            .Where(hit => hit is BroadsideRayHit)
+            .Select(hit => (BroadsideRayHit)hit)
+            .ToList();
+
+        List<AlignedRayHit> alignedRayHits = hits
+            .Where(hit => hit is AlignedRayHit)
+            .Select(hit => (AlignedRayHit)hit)
+            .ToList();
+
+        int i = 0;
+        while (i < broadsideRayHits.Count)
+        {
+            foreach (var alignedHit in alignedRayHits)
+            {
+                // collision should be ignored if the ray rides the edge
+                if (alignedHit.Distance == broadsideRayHits[i].Distance) 
+                {
+                    broadsideRayHits.RemoveAt(i);
+                    i--;
+                    break;
+                }
+            }
+            i++;
+        }
+
+        return broadsideRayHits.Count == 0;
     }
 
     public bool CanContainAABB(AABB rectangle)
@@ -96,33 +144,12 @@ public class ConvexHullPolygon
         for (int i=0, j=1; i<4; i++, j++)
         {
             if (j == 4) j = 0;
-            if (!IsVertexInside(rectangle.Vertices[i], rectangle.Vertices[j])) return false;
+            if (!IsEdgeWithinBounds(
+                rectangle.Vertices[i],
+                rectangle.Vertices[j])
+                ) return false;
         }
 
         return true;
     }
-
-    // public DrawPolygonWithSquare (AABB square)
-    // {
-    //     Vertex[] allCoords = AAEdges.SelectMany(edge => new Vertex[] { edge.A, edge.B }).ToArray();
-    //     long maxX = allCoords.Max(c => c.X);
-    //     long maxY = allCoords.Max(c => c.Y);
-
-    //     string[] output = new string[maxY];
-    //     for (int y = 0; y <= maxY; y++) "".PadRight((int)maxX, '.');
-        
-    //     foreach (Edge edge in AAEdges)
-    //     {
-    //         bool flat = edge.A.Y == edge.B.Y;
-    //         if (flat)
-    //         {
-    //             int start = (int)Math.Min(edge.A.X, edge.B.X);
-    //             int end = (int)Math.Max(edge.A.X, edge.B.X);
-    //             for (int c=start; c<=end; c++)
-    //             {
-    //                 output[edge.A.Y] = "#";
-    //             }
-    //         }
-    //     }
-    // }
 }

@@ -12,7 +12,7 @@
 7,3";
 
         SquareSeeker seeker = new(testData);
-        Console.WriteLine($"The largest possible square has an area of {seeker.FindLargestSquarea()}");
+        Console.WriteLine($"The largest possible square has an area of {seeker.FindLargestSquarea(anySquarea: false)}");
     }
 
     static void PerformPuzzleOne()
@@ -29,7 +29,7 @@
     
     public static void Main ()
     {
-        // PerformTest();
-        PerformPuzzleTwo(); 
+        PerformTest();
+        // PerformPuzzleTwo(); 
     }
 }

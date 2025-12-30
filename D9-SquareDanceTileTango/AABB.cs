@@ -14,8 +14,8 @@ public class AABB
         [
             new Vertex(minX, maxY), // TL
             new Vertex(maxX, maxY), // TR
+            new Vertex(maxX, minY), // BR
             new Vertex(minX, minY), // BL
-            new Vertex(maxX, minY)  // BR
         ];
 
         long X = maxX - minX + 1;
