@@ -44,7 +44,7 @@ public class Polygon
         AAEdges = edges.ToArray();
     }
 
-    IEnumerable<RayHit> RayTest(long X, long Y, long distanceMax, RayDirection direction)
+    IEnumerable<RayHit> RayTest(long X, long Y, RayDirection direction)
     {
         foreach (Edge edge in AAEdges)
         {
@@ -69,7 +69,7 @@ public class Polygon
                 long distance = positiveRayDir ?
                     edgeMin - rayStartPosition : rayStartPosition - edgeMax;
 
-                if (distance <= 0 || distance >= distanceMax) continue;
+                if (distance <= 0) continue;
 
                 yield return new AlignedRayHit
                 {
@@ -82,7 +82,7 @@ public class Polygon
                 long distance = positiveRayDir ?
                     perpEdgePosition - rayStartPosition : rayStartPosition - perpEdgePosition;
 
-                if (distance <= 0 || distance >= distanceMax) continue;
+                if (distance <= 0) continue;
 
                 bool rayOnTarget = perpRayPosition >= edgeMin && perpRayPosition <= edgeMax;
 
@@ -108,7 +108,7 @@ public class Polygon
         );
         long distance = flat ? Math.Abs(vertexFrom.X - vertexTo.X) : Math.Abs(vertexFrom.Y - vertexTo.Y);
 
-        IEnumerable<RayHit> hits = RayTest(vertexFrom.X, vertexFrom.Y, distance, direction);
+        IEnumerable<RayHit> hits = RayTest(vertexFrom.X, vertexFrom.Y, direction);
 
         List<BroadsideRayHit> broadsideRayHits = hits
             .Where(hit => hit is BroadsideRayHit)
