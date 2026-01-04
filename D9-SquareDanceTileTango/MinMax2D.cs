@@ -1,23 +1,20 @@
-
-using System.Numerics;
-
-public class MinMax3D
+public class MinMax2D
 {
-    public Vector3 Min;
-    public Vector3 Max;
+    public Vertex Min;
+    public Vertex Max;
 
-    public MinMax3D (Vector3 min, Vector3 max)
+    public MinMax2D (Vertex min, Vertex max)
     {
         Min = min; Max = max;
     }
 
-    public static MinMax3D FromParallelReduction(Vector3[] input)
+    public static MinMax2D FromParallelReduction(Vertex[] input)
     {
         int n = input.Length;
         int pow2 = GetNextPowerOf2(n);
 
-        Vector3[] mins = new Vector3[pow2];
-        Vector3[] maxs = new Vector3[pow2];
+        Vertex[] mins = new Vertex[pow2];
+        Vertex[] maxs = new Vertex[pow2];
 
         for (int i = 0; i < n; i++)
         {
@@ -27,8 +24,8 @@ public class MinMax3D
 
         for (int i = n; i < pow2; i++)
         {
-            mins[i] = new Vector3(float.MaxValue);
-            maxs[i] = new Vector3(float.MinValue);
+            mins[i] = new Vertex(int.MaxValue, int.MaxValue);
+            maxs[i] = new Vertex(int.MaxValue, int.MaxValue);
         }
 
         for (int step = 1; step < pow2; step *= 2)
@@ -40,12 +37,12 @@ public class MinMax3D
                 int a = i * stride;
                 int b = a + step;
 
-                mins[a] = Vector3.Min(mins[a], mins[b]);
-                maxs[a] = Vector3.Max(maxs[a], maxs[b]);
+                mins[a] = Vertex.Min(mins[a], mins[b]);
+                maxs[a] = Vertex.Max(maxs[a], maxs[b]);
             });
         }
 
-        return new MinMax3D(mins[0], maxs[0]);
+        return new MinMax2D(mins[0], maxs[0]);
     }
 
     private static int GetNextPowerOf2(int v)

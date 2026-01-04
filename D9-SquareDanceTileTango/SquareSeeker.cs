@@ -1,5 +1,6 @@
 
 
+using System.Collections.Concurrent;
 using System.Reflection.Metadata;
 using System.Security.Cryptography.X509Certificates;
 
@@ -17,7 +18,7 @@ public class SquareSeeker
             .Select(str =>
             {
                 string[] parts = str.Split(',');
-                return new Vertex(long.Parse(parts[0]), long.Parse(parts[1]));
+                return new Vertex(int.Parse(parts[0]), int.Parse(parts[1]));
             }).ToArray();
     }
 
@@ -28,7 +29,7 @@ public class SquareSeeker
 
     AABB[] GetAllSquares()
     {
-        List<AABB> squares = [];
+        HashSet<AABB> squares = [];
         foreach (Vertex coord in Coords)
         {
             foreach (Vertex other in Coords)
@@ -38,9 +39,10 @@ public class SquareSeeker
             }
         }
 
-        squares.Sort((a, b) => a.Size.CompareTo(b.Size));
+        List<AABB> squareList = squares.ToList();
+        squareList.Sort((a, b) => a.Size.CompareTo(b.Size));
 
-        return squares.ToArray();
+        return squareList.ToArray();
     }
 
     public long FindLargestSquarea(bool anySquarea = true)
@@ -53,13 +55,14 @@ public class SquareSeeker
 
         for (int i = squares.Length - 1; i >= 0; i--)
         {
+            Console.Write($"testing {i} of {squares.Length}\t");
             if (polygon.CanContainAABB(squares[i]))
             {
                 return squares[i].Size;
             }
         }
 
-        throw new Exception("Poodoo");
+        throw new Exception("dum");
     }
     
 }

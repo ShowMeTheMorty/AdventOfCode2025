@@ -3,32 +3,10 @@ using System.Security.Cryptography.X509Certificates;
 
 public class Polygon
 {
-    public interface RayHit
-    {
-        Edge HitEdge { get; set; }
-        long Distance { get; set; }
-    }
-
-    public struct AlignedRayHit : RayHit
-    {
-        public Edge HitEdge { get; set; }
-        public long Distance { get; set; }
-    }
-
-    public struct BroadsideRayHit : RayHit
-    {
-        public Edge HitEdge { get; set; }
-        public long Distance { get; set; }
-    }
-
-
-    public enum RayDirection
-    {
-        RIGHT, DOWN, UP, LEFT
-    };
-
-    
     readonly Edge[] AAEdges;
+    
+    readonly Vertex[] OuterCellsWithinBounds;
+    readonly MinMax2D MinMaxVertex;
 
     public Polygon(Vertex[] vertices)
     {
@@ -42,112 +20,83 @@ public class Polygon
         }
 
         AAEdges = edges.ToArray();
+        MinMaxVertex = MinMax2D.FromParallelReduction(vertices);
+        OuterCellsWithinBounds = FloodFillInaccesibleCells().ToArray();
+
+        Console.WriteLine("polygon initialised");
     }
 
-    IEnumerable<RayHit> RayTest(long X, long Y, RayDirection direction)
+    bool IsCellInsidePolygon(Vertex cell)
+    {
+        if (!IsCellInLocalRange(cell)) return false;
+        if (OuterCellsWithinBounds.Contains(cell)) return false;
+        return true;
+    }
+
+    bool IsCellOnEdge(Vertex cell)
     {
         foreach (Edge edge in AAEdges)
         {
-            bool flatRay = direction == RayDirection.RIGHT || direction == RayDirection.LEFT;
-            bool positiveRayDir = direction == RayDirection.UP || direction == RayDirection.RIGHT;
-            bool flatEdge = edge.A.Y == edge.B.Y;
-            bool aligned = (flatRay && flatEdge) || (!flatRay && !flatEdge);
+            bool inline = edge.IsFlat ? cell.Y == edge.A.Y : cell.X == edge.A.X;
+            if (!inline) continue;
 
-            long edgeMin = flatEdge ? Math.Min(edge.A.X, edge.B.X) : Math.Min(edge.A.Y, edge.B.Y);
-            long edgeMax = flatEdge ? Math.Max(edge.A.X, edge.B.X) : Math.Max(edge.A.Y, edge.B.Y);
-            
-            long perpEdgePosition = flatEdge ? edge.A.Y : edge.A.X;
-            long perpRayPosition = flatRay ? Y : X;
-            long rayStartPosition = flatRay ? X : Y;
+            long edgeMin = edge.IsFlat ? Math.Min(edge.A.X, edge.B.X) : Math.Min(edge.A.Y, edge.B.Y);
+            long edgeMax = edge.IsFlat ? Math.Max(edge.A.X, edge.B.X) : Math.Max(edge.A.Y, edge.B.Y);
+            long cellValue = edge.IsFlat ? cell.X : cell.Y;
 
-            bool inline = aligned && perpEdgePosition == perpRayPosition;
-
-            if (aligned)
-            {
-                if (!inline) continue; // miss
-
-                long distance = positiveRayDir ?
-                    edgeMin - rayStartPosition : rayStartPosition - edgeMax;
-
-                if (distance <= 0) continue;
-
-                yield return new AlignedRayHit
-                {
-                    Distance = distance,
-                    HitEdge = edge
-                };
-            }
-            else
-            {
-                long distance = positiveRayDir ?
-                    perpEdgePosition - rayStartPosition : rayStartPosition - perpEdgePosition;
-
-                if (distance <= 0) continue;
-
-                bool rayOnTarget = perpRayPosition >= edgeMin && perpRayPosition <= edgeMax;
-
-                if (!rayOnTarget) continue;
-                
-                yield return new BroadsideRayHit
-                {
-                    Distance = distance,
-                    HitEdge = edge
-                };
-            }
+            bool onEdge = cellValue >= edgeMin && cellValue <= edgeMax;
+            if (onEdge) return true;
         }
+        return false;
     }
 
-    bool IsEdgeWithinBounds(Vertex vertexFrom, Vertex vertexTo)
+    bool IsCellInLocalRange(Vertex cell)
     {
-        bool flat = vertexFrom.Y == vertexTo.Y;
-        bool dirIsPositive = flat ? vertexFrom.X <= vertexTo.X : vertexFrom.Y <= vertexTo.Y;
-        RayDirection direction = flat ? (
-            dirIsPositive ? RayDirection.RIGHT : RayDirection.LEFT
-        ) : (
-            dirIsPositive ? RayDirection.UP : RayDirection.DOWN
-        );
-        long distance = flat ? Math.Abs(vertexFrom.X - vertexTo.X) : Math.Abs(vertexFrom.Y - vertexTo.Y);
+        // add a border to acceptable range
+        return !(cell.X < MinMaxVertex.Min.X - 1
+            || cell.Y < MinMaxVertex.Min.Y - 1
+            || cell.X > MinMaxVertex.Max.X + 1
+            || cell.Y > MinMaxVertex.Max.Y + 1);
+    }
 
-        IEnumerable<RayHit> hits = RayTest(vertexFrom.X, vertexFrom.Y, direction);
+    IEnumerable<Vertex> FloodFillInaccesibleCells()
+    {
+        Console.WriteLine("flood filling polygon outer");
 
-        List<BroadsideRayHit> broadsideRayHits = hits
-            .Where(hit => hit is BroadsideRayHit)
-            .Select(hit => (BroadsideRayHit)hit)
-            .ToList();
+        Queue<Vertex> checkList = new Queue<Vertex>();
+        List<Vertex> outerCells = [];
+        // enqueue corners
+        checkList.Enqueue(MinMaxVertex.Min);
+        checkList.Enqueue(MinMaxVertex.Max);
+        // push out to sneak around edge
+        checkList.Enqueue(new Vertex(MinMaxVertex.Max.X + 1, MinMaxVertex.Min.Y - 1));
+        checkList.Enqueue(new Vertex(MinMaxVertex.Min.X - 1, MinMaxVertex.Max.Y + 1));
 
-        List<AlignedRayHit> alignedRayHits = hits
-            .Where(hit => hit is AlignedRayHit)
-            .Select(hit => (AlignedRayHit)hit)
-            .ToList();
-
-        int i = 0;
-        while (i < broadsideRayHits.Count)
+        while (checkList.Count > 0)
         {
-            foreach (var alignedHit in alignedRayHits)
-            {
-                // collision should be ignored if the ray rides the edge
-                if (alignedHit.Distance == broadsideRayHits[i].Distance) 
-                {
-                    broadsideRayHits.RemoveAt(i);
-                    i--;
-                    break;
-                }
-            }
-            i++;
+            Vertex cell = checkList.Dequeue();
+            if (!IsCellInLocalRange(cell)) continue;
+            if (outerCells.Contains(cell)) continue;
+            if (IsCellOnEdge(cell)) continue;
+
+            outerCells.Add(cell);
+
+            checkList.Enqueue(new Vertex(cell.X + 1, cell.Y));
+            checkList.Enqueue(new Vertex(cell.X - 1, cell.Y));
+            checkList.Enqueue(new Vertex(cell.X, cell.Y + 1));
+            checkList.Enqueue(new Vertex(cell.X, cell.Y - 1));
         }
 
-        return broadsideRayHits.Count == 0;
+        return outerCells;
     }
 
     public bool CanContainAABB(AABB rectangle)
     {
-        for (int i=0, j=1; i<4; i++, j++)
+        Console.WriteLine($"testing rectangle of size {rectangle.Size}");
+
+        foreach (Vertex vert in rectangle.GetAllEdgeCells())
         {
-            if (j == 4) j = 0;
-            if (!IsEdgeWithinBounds(
-                rectangle.Vertices[i],
-                rectangle.Vertices[j])
-                ) return false;
+            if (!IsCellInsidePolygon(vert)) return false;
         }
 
         return true;
